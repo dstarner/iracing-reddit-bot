@@ -1,0 +1,9 @@
+[
+    {"text": "code", "label": "sporting-code"},
+    {"text": "sporting code", "label": "sporting-code"},
+    {"text": "sc", "label": "sporting-code"},
+    {"text": "safety rating", "label": "safety-rating"},
+    {"text": "sr", "label": "safety-rating"},
+    {"text": "my fault", "label": "fault"},
+    {"text": "fault", "label": "fault"}
+]
