@@ -85,6 +85,21 @@ class SportingCode:
 
         # 3. Iterate through the sporting code and if the line contains a section ID or index
         #    then we will create a new section, or else we will keep appending to the current.
+        self.parse_content_into_sections()
+
+        # 4. Try to build a section hierarchy, meaning 1.1. is a child of 1.
+        #    This will allow us to easily grab all sections including children
+        self.build_section_hierarchy()
+
+        # Uncomment this if you want to write the sporting code to a file to check it
+        # with open('sporting_code.md', 'w') as f:
+        #     f.write(self.markdown())
+
+        self.parsed = True
+
+    def parse_content_into_sections(self):
+        """Parse the raw PDF output into defined, concrete sections that match section IDs
+        """
         page = 1  # index starting at 1 for the plebs
         self.sections = []
         for line in map(lambda x: x.strip(), self.parsed_content.split('\n')):
@@ -120,8 +135,9 @@ class SportingCode:
                 separator = ''
             section.text += f'{separator}{line}'
 
-        # 4. Try to build a section hierarchy, meaning 1.1. is a child of 1.
-        #    This will allow us to easily grab all sections including children
+    def build_section_hierarchy(self):
+        """Iterates through self.sections and creates the section hierarchy from section IDs
+        """
         sep = self.SECTION_PART_SEPARATOR
         for section in self.sections:
             # Since the sections are already in order, checking is easy...only two
@@ -134,12 +150,6 @@ class SportingCode:
 
         # List of top level sections (1.,2.,3....)
         self.top_level_sections = list(filter(lambda sec: sec.parent is None, self.sections))
-
-        # Uncomment this if you want to write the sporting code to a file to check it
-        # with open('sporting_code.md', 'w') as f:
-        #     f.write(self.markdown())
-
-        self.parsed = True
 
     def __line_starts_section(self, line):
         """Returns whether or not the line represents a new section

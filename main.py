@@ -90,9 +90,11 @@ def main():
 
     # 2. Reddit authentication instance
     print(f"⌚️Attempting connection to Reddit as {options.username}...")
-    reddit = praw.Reddit(user_agent=f"iRacing Bot (by {options.username})",
-                        client_id=options.client_id, client_secret=options.client_secret,
-                        username=options.username, password=options.password)
+    reddit = praw.Reddit(
+        user_agent=f"iRacing Bot (by {options.username})",
+        client_id=options.client_id, client_secret=options.client_secret,
+        username=options.username, password=options.password
+    )
     print("🎉Connected Successfully!")
 
     # 3. Response Generator
