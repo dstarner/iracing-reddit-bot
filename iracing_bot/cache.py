@@ -24,7 +24,9 @@ class FilesystemCache(Cache):
         self.cache = DiskCache(cache_directory)
 
     def cache_comment_id(self, comment_id):
-        self.cache.add(comment_id, True)
+        with self.cache as cache:
+            cache.add(comment_id, True)
 
     def comment_response_exists(self, comment_id):
-        return self.cache.get(comment_id, default=False)
+        with self.cache as cache:
+            return cache.get(comment_id, default=False)

@@ -17,6 +17,12 @@ class ResponseGenerator:
         training_data = training_data if training_data else self.__parse_yaml_data()
         self.classifier = NaiveBayesClassifier(training_data)
 
+    def respond_to_request(self, text):
+        """
+        Respond to a targeted request to the bot, meaning the person directly wanted a reply
+        """
+        return 'No response for you!'
+
     def __parse_yaml_data(self):
         """Parse out the dataset from the given YAML file
         """
