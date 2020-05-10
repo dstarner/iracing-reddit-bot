@@ -1,0 +1,9 @@
+training_data:
+  - label: sporting-code
+    entries:
+      - sporting code
+      - sc
+  - label: safety-rating
+    entries:
+      - safety rating
+      - sr

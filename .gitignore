@@ -1,4 +1,6 @@
 .iracingbot_cache
+.iracing_bot_cache
+TOPICS.md
 .vscode
 bot_attempt_1.py
 .bot.yaml

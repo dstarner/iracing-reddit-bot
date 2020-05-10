@@ -2,8 +2,10 @@ import configargparse
 
 import praw
 
-from bot import IRacingBot
-from sporting_code import SportingCode, BulletFormatter, ImageFormatter
+from iracing_bot.bot import IRacingBot
+from iracing_bot.cache import FilesystemCache
+from iracing_bot.responder import ResponseGenerator
+from iracing_bot.sporting_code import SportingCode, BulletFormatter, ImageFormatter
 
 
 CONFIG_FILE = ".bot.yaml"
@@ -37,6 +39,10 @@ def parse_arguments():
         '-d', '--training', type=str, default='training.yaml',
         env_var='TRAINING_PATH', help='Training YAML file to load from'
     )
+    p.add(
+        '--cache', type=str, choices=['redis', 'disk'], default='disk',
+        env_var='BOT_CACHE_TYPE', help='Type of cache to use for responses'
+    )
 
     # Authentication Flags
     # --------------------
@@ -66,8 +72,8 @@ def main():
     # 1. Sporting code is used to link to specific sections in the sporting code
     sporting_code = SportingCode(
         options.sporting_code,
-        # Format overrides are used to control how the final sporting code sections 
-        # are rendered. These are used if the PDF parser cannot correctly / easily 
+        # Format overrides are used to control how the final sporting code sections
+        # are rendered. These are used if the PDF parser cannot correctly / easily
         # pick up the formatting in the PDF file.
         format_overrides={
             '3.2.2.1.': BulletFormatter(),
@@ -78,6 +84,9 @@ def main():
             '5.5.4.5.': ImageFormatter('https://imgur.com/a/vdShzku', cut_at='Tier Name')
         }
     )
+    print(f"⌚️Attempting to parse Sporting Code PDF...")
+    sporting_code.parse_pdf()
+    print("🎉Parsed Successfully!")
 
     # 2. Reddit authentication instance
     print(f"⌚️Attempting connection to Reddit as {options.username}...")
@@ -87,15 +96,21 @@ def main():
     print("🎉Connected Successfully!")
 
     # 3. Response Generator
-    # TODO: Write me!
+    print(f"⌚️Training Response Generator from file {options.training}...")
+    response_generator = ResponseGenerator(training_file=options.training)
+    print(f"🎉Training Successfully!")
 
     # 4. Response cache to prevent us from answering the same comment twice
-    # TODO: Write me!
+    if options.cache == 'disk':
+        cache = FilesystemCache('.iracing_bot_cache')  # TODO: make this arg an option
 
     # Core iRacing bot that orchestrates everything
     bot = IRacingBot(
+        subreddit=options.subreddit,
         sporting_code=sporting_code,
-        reddit=reddit
+        reddit=reddit,
+        response_generator=response_generator,
+        response_cache=cache,
     )
     bot.begin_blocking_loop()
 

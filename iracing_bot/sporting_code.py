@@ -235,7 +235,7 @@ class BulletFormatter(Formatter):
 
 class ImageFormatter(Formatter):
     """
-    Since some things just will never render correctly, we may have to show an 
+    Since some things just will never render correctly, we may have to show an
     external image link that contains the info we want to show
     """
 
@@ -248,6 +248,6 @@ class ImageFormatter(Formatter):
         if self.cut_at:
             text = text.split(self.cut_at)[0]
         return (
-            f'**{section.idx}**: {text.strip()}. This section links to a graphic from the sporting code '
-            f'which can be viewed by [here]({self.image_url})'
+            f'**{section.idx}**: {text.strip()}. This section links to a graphic from the '
+            f'sporting code which can be viewed by [here]({self.image_url})'
         )

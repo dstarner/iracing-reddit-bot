@@ -9,6 +9,9 @@ class IRacingBot:
         self.response_generator = response_generator
         self.response_cache = response_cache
 
+        if not self.sporting_code.parsed:
+            self.sporting_code.parse_pdf()
+
     def begin_blocking_loop(self):
         """Core loop of the bot which will keep it going and going
         """
