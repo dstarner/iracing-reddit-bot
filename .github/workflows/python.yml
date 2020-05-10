@@ -33,4 +33,4 @@ jobs:
         flake8 main.py iracing_bot --count --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --cov=iracing_bot --cov-fail-under=40
+        pytest --cov=iracing_bot --cov-fail-under=20

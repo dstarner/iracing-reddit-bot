@@ -20,13 +20,17 @@ class IRacingBot:
     BOT_PREFIXES = ['!irbot']
     REPLY_FOOTER = DEFAULT_REPLY_FOOTER
 
-    def __init__(self, subreddit, sporting_code, reddit, response_generator, response_cache):
+    def __init__(self, subreddit, sporting_code, reddit, response_generator,
+                 response_cache, verbose=True):
         self.subreddit = subreddit
         self.sporting_code = sporting_code
         self.reddit = reddit
         self.response_generator = response_generator
         self.response_cache = response_cache
-
+        if verbose:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
         if not self.sporting_code.parsed:
             self.sporting_code.parse_pdf()
 
@@ -38,7 +42,8 @@ class IRacingBot:
         for comment in subreddit.stream.comments():
             text = str(comment.body).strip()
             # Skip if empty message or if its been replied to already
-            if not text or self.cache.comment_response_exists(comment.id):
+            if not text or self.response_cache.comment_response_exists(comment.id):
+                logger.debug('skipping comment %d by %s', comment.id, comment.author.name)
                 continue
 
             # ignore comments if they aren't asking for the bot and strip it from the text
@@ -50,6 +55,7 @@ class IRacingBot:
             if not cur_prefix:
                 continue
 
+            logging.debug('found comment by %s: %s', comment.author.name, text)
             # we can now generate our message from the text
             response = self.response_generator.respond_to_request(text)
 
@@ -58,6 +64,7 @@ class IRacingBot:
                 self.response_cache.cache_comment_id(comment.id)
             except PRAWException as e:
                 logger.exception(e)
+            logging.info('replied to comment %d by %s', comment.id, comment.author.name)
 
     def amend_legalese(self, msg):
         """

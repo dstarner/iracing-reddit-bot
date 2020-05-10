@@ -1,15 +1,26 @@
-import configargparse
+import logging
+import os
+import sys
 
+import configargparse
 import praw
 
 from iracing_bot.bot import IRacingBot
-from iracing_bot.cache import FilesystemCache
+from iracing_bot.cache import FilesystemCache, RedisCache
 from iracing_bot.responder import ResponseGenerator
 from iracing_bot.sporting_code import SportingCode, BulletFormatter, ImageFormatter
 
 
 CONFIG_FILE = ".bot.yaml"
 URL = 'https://d3bxz2vegbjddt.cloudfront.net/members/pdfs/FIRST_Sporting_Code_18_09_printable.pdf'
+
+# Globally configure logging to go to stdout
+root = logging.getLogger()
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root.addHandler(handler)
 
 
 def parse_arguments():
@@ -29,7 +40,7 @@ def parse_arguments():
     # Program Control Flags
     # ---------------------
     p.add('-c', '--config', is_config_file=True, help='override the config file path')
-    p.add('-v', '--verbose', help='enable verbose logging', action='store_true')
+    p.add('-v', '--verbose', help='enable verbose logging', action='store_true', env_var='VERBOSE')
     p.add(
         '-s', '--subreddit', help='Subreddit to listen to',
         env_var='REDDIT_SUB', default='iracingbottest'
@@ -105,6 +116,8 @@ def main():
     # 4. Response cache to prevent us from answering the same comment twice
     if options.cache == 'disk':
         cache = FilesystemCache('.iracing_bot_cache')  # TODO: make this arg an option
+    elif options.cache == 'redis':
+        cache = RedisCache(os.getenv('REDISCLOUD_URL'))
 
     # Core iRacing bot that orchestrates everything
     bot = IRacingBot(
@@ -113,6 +126,7 @@ def main():
         reddit=reddit,
         response_generator=response_generator,
         response_cache=cache,
+        verbose=options.verbose,
     )
     bot.begin_blocking_loop()
 
