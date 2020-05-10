@@ -23,7 +23,6 @@ class SportingCode:
         self.url = remote_pdf_url                           # URL to the sporting code PDF
         self.start_page_parsing_at = start_parsing_at       # Skips pages 1...n-1 like cover & TOC
         self.raw_content = BytesIO()                        # Raw PDF contents
-        self.raw_content.write(urlopen(self.url).read())
         self.raw_parsed_content = ''                        # Text contents of PDF minimally parsed
         self.sections = []                                  # Sections (rules) in the sporting code
         self.top_level_sections = []                        # Top level sections (1., 2., 3.)
@@ -52,6 +51,8 @@ class SportingCode:
         """
         if self.parsed:
             return
+
+        self.raw_content.write(urlopen(self.url).read())
         out_io = StringIO()
         extract_text_to_fp(
             self.raw_content,
