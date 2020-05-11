@@ -43,4 +43,4 @@ class RedisCache(Cache):
         self.conn.set(comment_id, 1)
 
     def comment_response_exists(self, comment_id):
-        return self.conn.get(comment_id) == 1
+        return self.conn.get(comment_id) is not None

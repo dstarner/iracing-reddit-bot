@@ -21,7 +21,7 @@ class ResponseGenerator:
         """
         Respond to a targeted request to the bot, meaning the person directly wanted a reply
         """
-        return 'No response for you!'
+        return 'Hi there! Im not configured yet!'
 
     def __parse_yaml_data(self):
         """Parse out the dataset from the given YAML file

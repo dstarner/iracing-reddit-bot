@@ -1,15 +1,5 @@
-import logging
-import sys
-
 from praw.exceptions import PRAWException
 
-
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 DEFAULT_REPLY_FOOTER = """
 
@@ -33,28 +23,23 @@ class IRacingBot:
         self.reddit = reddit
         self.response_generator = response_generator
         self.response_cache = response_cache
-        if verbose:
-            logger.setLevel(logging.DEBUG)
-        else:
-            logger.setLevel(logging.INFO)
         if not self.sporting_code.parsed:
             self.sporting_code.parse_pdf()
 
     def begin_blocking_loop(self):
         """Core loop of the bot which will keep it going and going
         """
+        print(f'Starting to listen on r/{self.subreddit}')
         subreddit = self.reddit.subreddit(self.subreddit)
         # Constantly stream in new comments from the selected SubReddit
         for comment in subreddit.stream.comments():
             text = str(comment.body).strip()
             # Skip if empty message or if its been replied to already
-            if not text:
+            if not text or comment.author.name == self.reddit.config.username:
                 continue
 
             if self.response_cache.comment_response_exists(comment.id):
-                logger.debug(
-                    'comment %d by %s already is cached, skipping', comment.id, comment.author.name
-                )
+                print(f'comment {comment.id} by {comment.author.name} already is cached, skipping')
                 continue
 
             # ignore comments if they aren't asking for the bot and strip it from the text
@@ -66,16 +51,16 @@ class IRacingBot:
             if not cur_prefix:
                 continue
 
-            logging.debug('found comment by %s: %s', comment.author.name, text)
+            print(f'found comment {comment.id} by {comment.author.name}')
             # we can now generate our message from the text
-            # TODO: uncomment me--response = self.response_generator.respond_to_request(text)
+            response = self.response_generator.respond_to_request(text)
 
             try:
-                # TODO: uncomment me--comment.reply(self.amend_legalese(response))
+                comment.reply(self.amend_legalese(response))
                 self.response_cache.cache_comment_id(comment.id)
             except PRAWException as e:
-                logger.exception(e)
-            logging.info('replied to comment %d by %s')
+                print(str(e))
+            print(f'replied to comment {comment.id} by {comment.author.name}')
 
     def amend_legalese(self, msg):
         """

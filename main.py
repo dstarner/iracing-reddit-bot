@@ -60,7 +60,7 @@ def parse_arguments():
         help='reddit client ID of the associated app for auth'
     )
     p.add(
-        '--client-secret', required=True, env_var='REDDIT_CLIENT_PASSWORD',
+        '--client-secret', required=True, env_var='REDDIT_CLIENT_SECRET',
         help='reddit client secret of the associated app for auth', type=str
     )
     return p.parse_args()
@@ -105,8 +105,10 @@ def main():
 
     # 4. Response cache to prevent us from answering the same comment twice
     if options.cache == 'disk':
+        print('Using the filesystem to cache comments')
         cache = FilesystemCache('.iracing_bot_cache')  # TODO: make this arg an option
     elif options.cache == 'redis':
+        print('Using Redis to cache comments')
         cache = RedisCache(os.getenv('REDISCLOUD_URL'))
 
     # Core iRacing bot that orchestrates everything
