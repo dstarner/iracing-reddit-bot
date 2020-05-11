@@ -1,6 +1,4 @@
-import logging
 import os
-import sys
 
 import configargparse
 import praw
@@ -13,14 +11,6 @@ from iracing_bot.sporting_code import SportingCode, BulletFormatter, ImageFormat
 
 CONFIG_FILE = ".bot.yaml"
 URL = 'https://d3bxz2vegbjddt.cloudfront.net/members/pdfs/FIRST_Sporting_Code_18_09_printable.pdf'
-
-# Globally configure logging to go to stdout
-root = logging.getLogger()
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-root.addHandler(handler)
 
 
 def parse_arguments():

@@ -1,9 +1,15 @@
 import logging
+import sys
 
 from praw.exceptions import PRAWException
 
 
 logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 DEFAULT_REPLY_FOOTER = """
 
@@ -42,8 +48,13 @@ class IRacingBot:
         for comment in subreddit.stream.comments():
             text = str(comment.body).strip()
             # Skip if empty message or if its been replied to already
-            if not text or self.response_cache.comment_response_exists(comment.id):
-                logger.debug('skipping comment %d by %s', comment.id, comment.author.name)
+            if not text:
+                continue
+
+            if self.response_cache.comment_response_exists(comment.id):
+                logger.debug(
+                    'comment %d by %s already is cached, skipping', comment.id, comment.author.name
+                )
                 continue
 
             # ignore comments if they aren't asking for the bot and strip it from the text
@@ -57,14 +68,14 @@ class IRacingBot:
 
             logging.debug('found comment by %s: %s', comment.author.name, text)
             # we can now generate our message from the text
-            response = self.response_generator.respond_to_request(text)
+            # TODO: uncomment me--response = self.response_generator.respond_to_request(text)
 
             try:
-                comment.reply(self.amend_legalese(response))
+                # TODO: uncomment me--comment.reply(self.amend_legalese(response))
                 self.response_cache.cache_comment_id(comment.id)
             except PRAWException as e:
                 logger.exception(e)
-            logging.info('replied to comment %d by %s', comment.id, comment.author.name)
+            logging.info('replied to comment %d by %s')
 
     def amend_legalese(self, msg):
         """
